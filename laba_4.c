@@ -36,7 +36,7 @@ void Input_inform(tree* node)
 tree *Create_root(tree *root) 
 { 
     if (root){ 
-        puts("Áèíàðíîå äåðåâî óæå ñîçäàíî");     
+        puts("The tree is created");     
         return (root);   
     }   
     root=Memory_allocation(root);
