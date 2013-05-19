@@ -11,14 +11,24 @@ typedef struct tree{
     struct tree *right;
 }tree;
 
-char *My_gets(char *str, size_t strin_size)
+char *MyGets(char *str, size_t strin_size)
 {
     fgets(str, strin_size, stdin);
     str[strlen(str) - 1] = '\0';
     return str;
 }
 
-tree* Memory_allocation(tree *pointer)
+void FreeingMemory(tree *tree)
+{
+    if (!tree) {
+        return;
+    }
+    FreeingMemory(tree->left);
+    FreeingMemory(tree->right);
+    free(tree);
+}
+
+tree* MemoryAllocation(tree *pointer)
 {
     if(!(pointer=(tree*)malloc(sizeof(tree)))){
         printf("ERROR!!!There is no free memory!");
@@ -27,22 +37,22 @@ tree* Memory_allocation(tree *pointer)
     else return pointer;
 }
 
-void Input_inform(tree* node)
+void InputInform(tree* node)
 {
     printf("Enter a string to the node of the tree with the key %s: ",node->key_name);
-    My_gets(node->inf_str,string_size);
+    MyGets(node->inf_str,string_size);
 }
 
-tree *Create_root(tree *root) 
+tree *CreateRoot(tree *root) 
 { 
     if (root){ 
         puts("The tree is created");     
         return (root);   
     }   
-    root=Memory_allocation(root);
+    root=MemoryAllocation(root);
     printf("Enter the key root of the tree: ");   
-    My_gets(root->key_name,string_size);  
-    Input_inform(root);
+    MyGets(root->key_name,string_size);  
+    InputInform(root);
     root->left=NULL;
     root->right=NULL;
     return root;
@@ -52,9 +62,9 @@ tree *Create_root(tree *root)
 tree* Add(tree* root,char*str)
 {
     if(root==NULL){
-        root=Memory_allocation(root);
+        root=MemoryAllocation(root);
         strcpy(root->key_name,str);
-        Input_inform(root);
+        InputInform(root);
         root->left=root->right=NULL;
     return root;
     }
@@ -71,12 +81,12 @@ tree* Add(tree* root,char*str)
     return root;
 }
 
-void Create_tree(tree *root)
+void CreateTree(tree *root)
 {
     char st[string_size];
     do{
         puts("Enter the key of the next node of the tree.   (Enter - exit)"); 
-        My_gets(st,string_size);   
+        MyGets(st,string_size);   
         if(!*st) return;
         Add(root,st);
     }
@@ -100,14 +110,14 @@ void Review(tree *root,int level)
     }
 }
 
-tree* Nearest_leaf(tree *current, tree *min, int distance)
+tree* NearestLeaf(tree *current, tree *min, int distance)
 {
     static int min_distance;
     if(current->left){
-        min=Nearest_leaf(current->left,min,distance+1);
+        min=NearestLeaf(current->left,min,distance+1);
     }
     if(current->right){
-        min=Nearest_leaf(current->right,min,distance+1);
+        min=NearestLeaf(current->right,min,distance+1);
     }
     if((!current->left && !current->right) && (!min_distance || min_distance>=distance)){
         min_distance=distance;
@@ -116,13 +126,18 @@ tree* Nearest_leaf(tree *current, tree *min, int distance)
     return min;
 }
 
-void Search_of_max_inf(tree *root, char *key_min)
+void SearchMaxInf(tree *root, char *key_min)
 {
     char max_inf[string_size];
     strcpy(max_inf,root->inf_str);
     while(root){
-        if(strlen(root->inf_str)>=strlen(max_inf)){
+        if(strlen(root->inf_str)>strlen(max_inf)){
             strcpy(max_inf,root->inf_str);
+        }
+        if(strlen(root->inf_str)==strlen(max_inf)){
+            if(strcmp(root->inf_str,max_inf)>0){
+                strcpy(max_inf,root->inf_str);
+            }
         }
         if(strcmp(root->key_name,key_min)>0){
             root=root->left;
@@ -155,11 +170,12 @@ int main(int argc, char *argv[])
     }
     int level=0;
     tree *root=NULL,*leaf=NULL;
-    root=Create_root(root);
-    Create_tree(root);
+    root=CreateRoot(root);
+    CreateTree(root);
     Review(root, level);
-    leaf = Nearest_leaf(root, root, level);
+    leaf = NearestLeaf(root, root, level);
     printf("The hearest leaf : %s\n",leaf->key_name);
-    Search_of_max_inf(root,leaf->key_name);
+    SearchMaxInf(root,leaf->key_name);
+    FreeingMemory(root);
     return 0;
 }

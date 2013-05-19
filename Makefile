@@ -1,4 +1,4 @@
-OBJ = laba_4.c
+OBJ = laba_4.o
 CFLAGS = -Wall -std=c99
 
 all: bin
